@@ -1,0 +1,225 @@
+
+# 📒 Cahier des charges des requêtes SQL – Projet Événements (MIS À JOUR)
+
+---
+
+## 0) Connexion à la base de données (étape 0, obligatoire)
+
+### 0.1 — Depuis la machine (super-utilisateur postgres)
+
+```bash
+# se connecter en tant que postgres et ouvrir psql sur la DB event_db
+sudo -u postgres psql -d event_db
+```
+
+-- se connecter à une base (si pas déjà)
+\c event_db
+
+-- lister les tables du schéma public
+\dt
+
+-- voir la structure d'une table
+\d utilisateurs
+```
+
+### 0.4 — Créer un utilisateur / base (si nécessaire)
+
+```bash
+# créer un role avec mot de passe
+sudo -u postgres createuser -P appuser
+# créer la base et en donner la propriété
+sudo -u postgres createdb -O appuser event_db
+# OU depuis psql en tant que postgres :
+CREATE USER appuser WITH PASSWORD 'securepass';
+CREATE DATABASE event_db OWNER appuser;
+GRANT ALL PRIVILEGES ON DATABASE event_db TO appuser;
+```
+## 1) Utilisateurs (`utilisateurs`)
+
+* **Créer un utilisateur**
+
+```sql
+INSERT INTO utilisateurs (prenom, nom, email, mot_de_passe)
+VALUES ('Adama', 'Traoré', 'adama.traore@email.com', 'hash_mdp');
+```
+
+* **Lister tous (sans mot de passe)**
+
+```sql
+SELECT id, prenom, nom, email, cree_le
+FROM utilisateurs
+ORDER BY id;
+```
+
+* **Voir par ID**
+
+```sql
+SELECT id, prenom, nom, email, cree_le
+FROM utilisateurs
+WHERE id = 1;
+```
+
+* **Mettre à jour**
+
+```sql
+UPDATE utilisateurs
+SET prenom = 'NouveauPrenom', nom = 'NouveauNom'
+WHERE id = 1;
+```
+
+* **Supprimer**
+
+```sql
+DELETE FROM utilisateurs WHERE id = 1;
+```
+
+---
+
+## 2) Événements (`evenements`)
+
+* **Créer**
+
+```sql
+INSERT INTO evenements (nom, description, date, lieu, est_gratuit, prix, organisateur_id)
+VALUES ('Conférence Tech', 'Conférence sur Node.js', '2025-10-01 10:00:00', 'Ouagadougou', FALSE, 5000, 1);
+```
+
+* **Lister**
+
+```sql
+SELECT id, nom, date, lieu, est_gratuit, prix
+FROM evenements
+ORDER BY date DESC;
+```
+
+* **Voir par ID**
+
+```sql
+SELECT * FROM evenements WHERE id = 2;
+```
+
+* **Mettre à jour**
+
+```sql
+UPDATE evenements
+SET nom = 'Conférence Tech mise à jour', mis_a_jour_le = NOW()
+WHERE id = 2;
+```
+
+* **Supprimer**
+
+```sql
+DELETE FROM evenements WHERE id = 2;
+```
+
+* **Par organisateur**
+
+```sql
+SELECT id, nom, date, lieu
+FROM evenements
+WHERE organisateur_id = 1
+ORDER BY date DESC;
+```
+
+---
+
+## 3) Inscriptions (`inscriptions`)
+
+* **S’inscrire**
+
+```sql
+INSERT INTO inscriptions (utilisateur_id, evenement_id)
+VALUES (1, 2);
+```
+
+* **Inscrits d’un événement**
+
+```sql
+SELECT u.id, u.prenom, u.nom, u.email
+FROM inscriptions i
+JOIN utilisateurs u ON i.utilisateur_id = u.id
+WHERE i.evenement_id = 2;
+```
+
+* **Événements d’un utilisateur**
+
+```sql
+SELECT e.id, e.nom, e.date, e.lieu
+FROM inscriptions i
+JOIN evenements e ON i.evenement_id = e.id
+WHERE i.utilisateur_id = 1;
+```
+
+* **Désinscription**
+
+```sql
+DELETE FROM inscriptions
+WHERE utilisateur_id = 1 AND evenement_id = 2;
+```
+
+---
+
+## 4) Commentaires (`commentaires`)
+
+* **Ajouter**
+
+```sql
+INSERT INTO commentaires (contenu, utilisateur_id, evenement_id)
+VALUES ('Super conférence !', 1, 2);
+```
+
+* **Lister**
+
+```sql
+SELECT c.id, c.contenu, c.cree_le, u.prenom, u.nom
+FROM commentaires c
+JOIN utilisateurs u ON c.utilisateur_id = u.id
+WHERE c.evenement_id = 2
+ORDER BY c.cree_le DESC;
+```
+
+* **Modifier (vérifier propriétaire)**
+
+```sql
+UPDATE commentaires
+SET contenu = 'Commentaire modifié'
+WHERE id = 5 AND utilisateur_id = 1;
+```
+
+* **Supprimer (vérifier propriétaire)**
+
+```sql
+DELETE FROM commentaires WHERE id = 5 AND utilisateur_id = 1;
+```
+
+---
+
+## 5) Requêtes avancées (reporting)
+
+* **Compter participants**
+
+```sql
+SELECT COUNT(*) AS nb_participants
+FROM inscriptions
+WHERE evenement_id = 2;
+```
+
+* **Événements avec nb d’inscrits**
+
+```sql
+SELECT e.id, e.nom, COUNT(i.utilisateur_id) AS nb_inscrits
+FROM evenements e
+LEFT JOIN inscriptions i ON e.id = i.evenement_id
+GROUP BY e.id, e.nom
+ORDER BY nb_inscrits DESC;
+```
+
+---
+
+Si tu veux, je peux :
+
+* Te fournir **la version Node.js** (`pool.query(...)`) pour chacune des requêtes du cahier de charges (pratique pour intégrer directement dans tes routes).
+* Ou générer un petit **README.md** prêt à coller dans ton repo.
+
+Tu préfères que je te génère directement les snippets Node.js correspondant ?
+

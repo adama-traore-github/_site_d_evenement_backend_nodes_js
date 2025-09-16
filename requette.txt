@@ -1,0 +1,52 @@
+npm install pg
+npm install --save-dev @types/pg
+npm uninstall @types/pg
+npm install bcryptjs jsonwebtoken
+npm install express@4
+npm install --save-dev nodemon
+npm install dotenv
+npm install stripe
+
+
+sudo -u postgres psql -d event_db
+
+CREATE TABLE utilisateurs (
+    id SERIAL PRIMARY KEY,
+    prenom VARCHAR(100) NOT NULL,
+    nom VARCHAR(100) NOT NULL,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    mot_de_passe VARCHAR(255) NOT NULL,
+    cree_le TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE evenements (
+    id SERIAL PRIMARY KEY,
+    nom VARCHAR(255) NOT NULL,
+    description TEXT NOT NULL,
+    date TIMESTAMPTZ NOT NULL,
+    lieu VARCHAR(255),
+    est_gratuit BOOLEAN DEFAULT TRUE,
+    prix NUMERIC(10, 2) CHECK (prix >= 0),
+    organisateur_id INTEGER NOT NULL REFERENCES utilisateurs(id),
+    cree_le TIMESTAMPTZ DEFAULT NOW(),
+    mis_a_jour_le TIMESTAMPTZ DEFAULT NOW()
+);
+
+
+CREATE TABLE commentaires (
+    id SERIAL PRIMARY KEY,
+    contenu TEXT NOT NULL,
+    utilisateur_id INTEGER NOT NULL REFERENCES utilisateurs(id) ON DELETE CASCADE,
+    evenement_id INTEGER NOT NULL REFERENCES evenements(id) ON DELETE CASCADE,
+    cree_le TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE inscriptions (
+    utilisateur_id INTEGER NOT NULL REFERENCES utilisateurs(id) ON DELETE CASCADE,
+    evenement_id INTEGER NOT NULL REFERENCES evenements(id) ON DELETE CASCADE,
+    date_inscription TIMESTAMPTZ DEFAULT NOW(),
+    PRIMARY KEY (utilisateur_id, evenement_id)
+);
+
+GRANT ALL PRIVILEGES ON TABLE evenements, commentaires, inscriptions TO event_user;
+GRANT USAGE, SELECT ON SEQUENCE evenements_id_seq, commentaires_id_seq TO event_user;
