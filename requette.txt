@@ -6,6 +6,7 @@ npm install express@4
 npm install --save-dev nodemon
 npm install dotenv
 npm install stripe
+npm install --save-dev jest supertest
 
 
 sudo -u postgres psql -d event_db
@@ -50,3 +51,9 @@ CREATE TABLE inscriptions (
 
 GRANT ALL PRIVILEGES ON TABLE evenements, commentaires, inscriptions TO event_user;
 GRANT USAGE, SELECT ON SEQUENCE evenements_id_seq, commentaires_id_seq TO event_user;
+-- D'abord, on supprime l'ancienne contrainte
+ALTER TABLE evenements DROP CONSTRAINT evenements_organisateur_id_fkey;
+
+-- Ensuite, on la recrée avec l'option ON DELETE CASCADE
+ALTER TABLE evenements ADD CONSTRAINT evenements_organisateur_id_fkey
+FOREIGN KEY (organisateur_id) REFERENCES utilisateurs(id) ON DELETE CASCADE;

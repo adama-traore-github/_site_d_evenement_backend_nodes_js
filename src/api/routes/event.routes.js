@@ -5,7 +5,50 @@ const upload = require('../middlewares/upload.middleware');
 
 const router = Router();
 
-// --- ROUTE PUBLIQUE : Récupérer tous les événements ---
+
+/**
+ * @swagger
+ * tags:
+ *   name: Événements
+ *   description: Gestion des événements
+ */
+
+/**
+ * @swagger
+ * /api/events:
+ *   get:
+ *     summary: Liste tous les événements
+ *     tags: [Événements]
+ *     responses:
+ *       200:
+ *         description: Liste des événements
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   id:
+ *                     type: integer
+ *                   nom:
+ *                     type: string
+ *                   date:
+ *                     type: string
+ *                     format: date-time
+ *                   lieu:
+ *                     type: string
+ *                   est_gratuit:
+ *                     type: boolean
+ *                   prix:
+ *                     type: number
+ *                     format: float
+ *                   image_url:
+ *                     type: string
+ *       500:
+ *         description: Erreur serveur
+ */
+
 // GET /api/events
 router.get('/', async (req, res) => {
   try {
@@ -17,7 +60,29 @@ router.get('/', async (req, res) => {
   }
 });
 
-// --- ROUTE PUBLIQUE : Récupérer UN événement par son ID ---
+
+/**
+ * @swagger
+ * /api/events/{id}:
+ *   get:
+ *     summary: Récupérer un événement par son ID
+ *     tags: [Événements]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID de l'événement
+ *     responses:
+ *       200:
+ *         description: Détails de l'événement
+ *       404:
+ *         description: Événement non trouvé
+ *       500:
+ *         description: Erreur serveur
+ */
+
 // GET /api/events/:id
 router.get('/:id', async (req, res) => {
   try {
@@ -36,7 +101,50 @@ router.get('/:id', async (req, res) => {
 });
 
 
-// --- ROUTE PROTÉGÉE : Créer un nouvel événement ---
+/**
+ * @swagger
+ * /api/events:
+ *   post:
+ *     summary: Créer un nouvel événement
+ *     tags: [Événements]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - nom
+ *               - description
+ *               - date
+ *             properties:
+ *               nom:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *               date:
+ *                 type: string
+ *                 format: date-time
+ *               lieu:
+ *                 type: string
+ *               est_gratuit:
+ *                 type: boolean
+ *               prix:
+ *                 type: number
+ *               image:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       201:
+ *         description: Événement créé
+ *       400:
+ *         description: Champs obligatoires manquants
+ *       500:
+ *         description: Erreur serveur
+ */
+
 // POST /api/events
 router.post('/', protect, upload.single('image'), async (req, res) => {
   try {
@@ -62,7 +170,55 @@ router.post('/', protect, upload.single('image'), async (req, res) => {
   }
 });
 
-// --- NOUVEAU : Mettre à jour un événement ---
+/**
+ * @swagger
+ * /api/events/{id}:
+ *   put:
+ *     summary: Mettre à jour un événement
+ *     tags: [Événements]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID de l'événement
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               nom:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *               date:
+ *                 type: string
+ *                 format: date-time
+ *               lieu:
+ *                 type: string
+ *               est_gratuit:
+ *                 type: boolean
+ *               prix:
+ *                 type: number
+ *               image:
+ *                 type: string
+ *                 format: binary
+ *     responses:
+ *       200:
+ *         description: Événement mis à jour
+ *       403:
+ *         description: Non autorisé
+ *       404:
+ *         description: Événement non trouvé
+ *       500:
+ *         description: Erreur serveur
+ */
+
 // PUT /api/events/:id
 router.put('/:id', protect, upload.single('image'), async (req, res) => {
   try {
@@ -101,7 +257,33 @@ router.put('/:id', protect, upload.single('image'), async (req, res) => {
   }
 });
 
-// --- NOUVEAU : Supprimer un événement ---
+
+/**
+ * @swagger
+ * /api/events/{id}:
+ *   delete:
+ *     summary: Supprimer un événement
+ *     tags: [Événements]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: integer
+ *         description: ID de l'événement
+ *     responses:
+ *       200:
+ *         description: Événement supprimé avec succès
+ *       403:
+ *         description: Non autorisé
+ *       404:
+ *         description: Événement non trouvé
+ *       500:
+ *         description: Erreur serveur
+ */
+
 // DELETE /api/events/:id
 router.delete('/:id', protect, async (req, res) => {
   try {

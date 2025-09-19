@@ -6,6 +6,98 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 const router = Router();
 
+
+/**
+ * @swagger
+ * /api/payments/create-payment-intent:
+ *   post:
+ *     summary: Créer une intention de paiement Stripe pour un événement payant
+ *     description: >
+ *       Permet à un utilisateur authentifié de générer une intention de paiement Stripe  
+ *       pour un événement payant. Retourne un `clientSecret` à utiliser côté client (frontend).
+ *     tags: [Payments]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - eventId
+ *             properties:
+ *               eventId:
+ *                 type: integer
+ *                 example: 12
+ *     responses:
+ *       200:
+ *         description: Intention de paiement créée avec succès
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: "Intention de paiement créée avec succès."
+ *               clientSecret: "pi_3Nk...secret_123"
+ *       400:
+ *         description: Prix invalide ou événement gratuit
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: "Montant invalide pour cet événement payant."
+ *       404:
+ *         description: Événement non trouvé
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: "Événement non trouvé."
+ *       500:
+ *         description: Erreur serveur (Stripe ou DB)
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: "Erreur lors de la création de l'intention de paiement."
+ */
+
+/**
+ * @swagger
+ * /api/payments/webhook:
+ *   post:
+ *     summary: Webhook Stripe pour gérer les paiements réussis
+ *     description: >
+ *       Stripe appelle cette route automatiquement après un paiement réussi.  
+ *       Si le paiement est validé, l’utilisateur est inscrit automatiquement à l’événement.
+ *     tags: [Payments]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *           example:
+ *             id: "evt_1NK...example"
+ *             type: "payment_intent.succeeded"
+ *             data:
+ *               object:
+ *                 id: "pi_3Nk...example"
+ *                 metadata:
+ *                   eventId: "12"
+ *                   userId: "34"
+ *     responses:
+ *       200:
+ *         description: Webhook reçu avec succès
+ *         content:
+ *           application/json:
+ *             example:
+ *               received: true
+ *       400:
+ *         description: Erreur de signature Stripe (vérification échouée)
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: "Webhook Error: Signature invalid"
+ */
+
+
 /**
  * Créer une intention de paiement pour un événement payant
  * POST /api/payments/create-payment-intent

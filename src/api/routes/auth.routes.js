@@ -5,7 +5,50 @@ const pool = require('../../config/database');
 
 const router = Router();
 
-// Route d'inscription
+/**
+ * @swagger
+ * /api/auth/signup:
+ *   post:
+ *     summary: Crée un nouvel utilisateur
+ *     tags: [Authentification]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - prenom
+ *               - nom
+ *               - email
+ *               - mot_de_passe
+ *             properties:
+ *               prenom:
+ *                 type: string
+ *                 description: Prénom de l'utilisateur
+ *               nom:
+ *                 type: string
+ *                 description: Nom de l'utilisateur
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 description: Email de l'utilisateur
+ *               mot_de_passe:
+ *                 type: string
+ *                 format: password
+ *                 description: Mot de passe de l'utilisateur
+ *     responses:
+ *       '201':
+ *         description: Utilisateur créé avec succès.
+ *       '400':
+ *         description: Tous les champs sont requis.
+ *       '409':
+ *         description: Cet email est déjà utilisé.
+ *       '500':
+ *         description: Erreur du serveur.
+ */
+
+
 router.post('/signup', async (req, res) => {
   try {
     const { prenom, nom, email, mot_de_passe } = req.body;
@@ -27,7 +70,44 @@ router.post('/signup', async (req, res) => {
   }
 });
 
-// Route de connexion
+
+/**
+ * @swagger
+ * /api/auth/login:
+ *   post:
+ *     summary: Connecte un utilisateur existant
+ *     tags: [Authentification]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - email
+ *               - mot_de_passe
+ *             properties:
+ *               email:
+ *                 type: string
+ *                 format: email
+ *                 description: L'email de l'utilisateur
+ *               mot_de_passe:
+ *                 type: string
+ *                 format: password
+ *                 description: Le mot de passe de l'utilisateur
+ *     responses:
+ *       '200':
+ *         description: Connexion réussie, renvoie un token JWT.
+ *       '400':
+ *         description: Email ou mot de passe manquant.
+ *       '401':
+ *         description: Identifiants incorrects.
+ *       '500':
+ *         description: Erreur du serveur.
+ */
+
+
+
 router.post('/login', async (req, res) => {
   try {
     const { email, mot_de_passe } = req.body;

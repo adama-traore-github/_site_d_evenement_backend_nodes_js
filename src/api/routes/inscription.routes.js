@@ -4,6 +4,58 @@ const { protect } = require('../middlewares/auth.middleware');
 
 const router = Router();
 
+/**
+ * @swagger
+ * /api/events/{id}/inscriptions:
+ *   post:
+ *     summary: Inscrire un utilisateur à un événement
+ *     description: >
+ *       Permet à un utilisateur authentifié de s'inscrire à un événement gratuit.  
+ *       Si l'événement est payant, l'inscription directe est bloquée (code 402).
+ *     tags: [Inscriptions]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: ID de l'événement
+ *     responses:
+ *       201:
+ *         description: Inscription réussie
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: "Inscription finalisée avec succès !"
+ *       402:
+ *         description: L'événement est payant, inscription directe bloquée
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: "Cet événement est payant. Veuillez d'abord effectuer le paiement."
+ *       404:
+ *         description: Événement non trouvé
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: "Événement non trouvé."
+ *       409:
+ *         description: Conflit, utilisateur déjà inscrit
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: "Vous êtes déjà inscrit à cet événement."
+ *       500:
+ *         description: Erreur serveur
+ *         content:
+ *           application/json:
+ *             example:
+ *               message: "Erreur du serveur lors de l'inscription."
+ */
+
+
 // POST /api/events/:id/inscriptions
 router.post('/:id/inscriptions', protect, async (req, res) => {
   const { id: eventId } = req.params;
