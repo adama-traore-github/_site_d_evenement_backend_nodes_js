@@ -1,10 +1,4 @@
-C'est la dernière étape pour finaliser le projet. Un bon `README.md` est la carte de visite de ton code.
 
-Voici une proposition complète et professionnelle que tu peux utiliser. Elle résume tout ce que nous avons construit.
-
------
-
-Copie-colle ce texte dans un fichier nommé `README.md` à la racine de ton projet.
 
 ````markdown
 # API pour Site d'Événements
